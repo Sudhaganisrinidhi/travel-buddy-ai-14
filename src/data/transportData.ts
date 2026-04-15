@@ -13,6 +13,8 @@ export interface TransportOption {
   operator: string;
   available: boolean;
   note?: string;
+  bookingUrl?: string;
+  bookingLabel?: string;
 }
 
 function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -29,9 +31,50 @@ function formatDuration(hours: number): string {
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
+// Real booking URLs
+function getBusBookingUrl(from: string, to: string): string {
+  // TSRTC for Telangana, APSRTC for AP, KSRTC for Kerala/Karnataka, else RedBus
+  return `https://www.redbus.in/bus-tickets/${from.toLowerCase()}-to-${to.toLowerCase()}`;
+}
+
+function getTSRTCUrl(): string {
+  return 'https://www.tsrtconline.in/oprs-web/guest/home';
+}
+
+function getAPSRTCUrl(): string {
+  return 'https://www.apsrtconline.in/oprs-web/guest/home';
+}
+
+function getKSRTCUrl(): string {
+  return 'https://www.ksrtc.in/oprs-web/guest/home';
+}
+
+function getTrainBookingUrl(from: string, to: string): string {
+  return `https://www.irctc.co.in/nget/train-search`;
+}
+
+function getFlightBookingUrl(from: string, to: string): string {
+  return `https://www.makemytrip.com/flight/search?itinerary=${encodeURIComponent(from)}-${encodeURIComponent(to)}&tripType=O&paxType=A-1_C-0_I-0&intl=false&cabinClass=E`;
+}
+
+function getStateBusInfo(from: City, to: City): { operator: string; bookingUrl: string; bookingLabel: string } {
+  const states = [from.state, to.state];
+  if (states.includes('Telangana')) {
+    return { operator: 'TSRTC', bookingUrl: getTSRTCUrl(), bookingLabel: 'Book on TSRTC' };
+  }
+  if (states.includes('Andhra Pradesh')) {
+    return { operator: 'APSRTC', bookingUrl: getAPSRTCUrl(), bookingLabel: 'Book on APSRTC' };
+  }
+  if (states.includes('Kerala') || states.includes('Karnataka')) {
+    return { operator: 'KSRTC', bookingUrl: getKSRTCUrl(), bookingLabel: 'Book on KSRTC' };
+  }
+  return { operator: 'State RTC', bookingUrl: getBusBookingUrl(from.name, to.name), bookingLabel: 'Book on RedBus' };
+}
+
 export function getTransportOptions(from: City, to: City): TransportOption[] {
   const dist = haversineDistance(from.lat, from.lng, to.lat, to.lng);
   const options: TransportOption[] = [];
+  const busInfo = getStateBusInfo(from, to);
 
   // Bus - always available
   const busSpeed = 45;
@@ -45,8 +88,25 @@ export function getTransportOptions(from: City, to: City): TransportOption[] {
     price: busPrice,
     departure: busHours > 8 ? "20:00" : "06:00",
     arrival: busHours > 8 ? `${String(Math.round(busHours + 20) % 24).padStart(2,'0')}:00` : `${String(Math.round(busHours + 6) % 24).padStart(2,'0')}:00`,
-    operator: dist > 500 ? "KSRTC / Private" : "TSRTC / APSRTC",
+    operator: busInfo.operator,
     available: true,
+    bookingUrl: busInfo.bookingUrl,
+    bookingLabel: busInfo.bookingLabel,
+  });
+
+  // RedBus option
+  options.push({
+    mode: 'bus',
+    from: from.name,
+    to: to.name,
+    duration: formatDuration(busHours),
+    price: Math.round(busPrice * 1.1),
+    departure: "22:00",
+    arrival: `${String(Math.round(busHours + 22) % 24).padStart(2,'0')}:00`,
+    operator: "Private (Via RedBus)",
+    available: true,
+    bookingUrl: getBusBookingUrl(from.name, to.name),
+    bookingLabel: 'Book on RedBus',
   });
 
   // Sleeper bus for long distances
@@ -59,9 +119,11 @@ export function getTransportOptions(from: City, to: City): TransportOption[] {
       price: Math.round(busPrice * 1.5),
       departure: "21:00",
       arrival: `${String(Math.round(busHours + 21) % 24).padStart(2,'0')}:00`,
-      operator: "Sleeper Bus (Private)",
+      operator: "AC Sleeper (Via RedBus)",
       available: true,
-      note: "AC Sleeper"
+      note: "AC Sleeper",
+      bookingUrl: getBusBookingUrl(from.name, to.name),
+      bookingLabel: 'Book on RedBus',
     });
   }
 
@@ -79,6 +141,8 @@ export function getTransportOptions(from: City, to: City): TransportOption[] {
       arrival: `${String(Math.round(trainHours + 6) % 24).padStart(2,'0')}:30`,
       operator: "Indian Railways (Sleeper)",
       available: true,
+      bookingUrl: getTrainBookingUrl(from.name, to.name),
+      bookingLabel: 'Book on IRCTC',
     });
     options.push({
       mode: 'train',
@@ -90,6 +154,23 @@ export function getTransportOptions(from: City, to: City): TransportOption[] {
       arrival: `${String(Math.round(trainHours * 0.9 + 16) % 24).padStart(2,'0')}:00`,
       operator: "Indian Railways (AC 3-Tier)",
       available: true,
+      bookingUrl: getTrainBookingUrl(from.name, to.name),
+      bookingLabel: 'Book on IRCTC',
+    });
+    // Tatkal option
+    options.push({
+      mode: 'train',
+      from: from.name,
+      to: to.name,
+      duration: formatDuration(trainHours * 0.85),
+      price: Math.round(dist * 2 + 300),
+      departure: "20:00",
+      arrival: `${String(Math.round(trainHours * 0.85 + 20) % 24).padStart(2,'0')}:00`,
+      operator: "Indian Railways (AC 2-Tier)",
+      available: true,
+      note: "Tatkal Available",
+      bookingUrl: getTrainBookingUrl(from.name, to.name),
+      bookingLabel: 'Book on IRCTC',
     });
   }
 
@@ -104,8 +185,10 @@ export function getTransportOptions(from: City, to: City): TransportOption[] {
       price: Math.round(2500 + dist * 3),
       departure: "07:00",
       arrival: `${String(Math.round(flightHours + 7) % 24).padStart(2,'0')}:${flightHours % 1 > 0 ? '15' : '00'}`,
-      operator: "IndiGo / Air India",
+      operator: "IndiGo",
       available: true,
+      bookingUrl: getFlightBookingUrl(from.name, to.name),
+      bookingLabel: 'Book on MakeMyTrip',
     });
     options.push({
       mode: 'flight',
@@ -115,11 +198,12 @@ export function getTransportOptions(from: City, to: City): TransportOption[] {
       price: Math.round(3500 + dist * 3.5),
       departure: "18:30",
       arrival: `${String(Math.round(flightHours + 18) % 24).padStart(2,'0')}:45`,
-      operator: "SpiceJet / Vistara",
+      operator: "Air India / Vistara",
       available: true,
+      bookingUrl: getFlightBookingUrl(from.name, to.name),
+      bookingLabel: 'Book on MakeMyTrip',
     });
   } else if (!from.hasAirport || !to.hasAirport) {
-    // Suggest nearest airport city
     const nearestFromAirport = from.hasAirport ? from.name : getNearestAirportCity(from);
     const nearestToAirport = to.hasAirport ? to.name : getNearestAirportCity(to);
     if (nearestFromAirport && nearestToAirport && nearestFromAirport !== nearestToAirport) {
@@ -133,7 +217,9 @@ export function getTransportOptions(from: City, to: City): TransportOption[] {
         arrival: "10:30",
         operator: "IndiGo / Air India",
         available: true,
-        note: `Fly from ${nearestFromAirport} to ${nearestToAirport}`,
+        note: `Fly ${nearestFromAirport} → ${nearestToAirport}`,
+        bookingUrl: getFlightBookingUrl(nearestFromAirport, nearestToAirport),
+        bookingLabel: 'Book on MakeMyTrip',
       });
     }
   }

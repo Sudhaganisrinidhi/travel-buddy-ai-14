@@ -1,5 +1,5 @@
 import { DayPlan } from '@/data/itineraryData';
-import { Clock, MapPin, Utensils, Camera, Bed, Activity } from 'lucide-react';
+import { Clock, MapPin, Utensils, Camera, Bed, Activity, ExternalLink } from 'lucide-react';
 
 const typeIcons = {
   travel: MapPin,
@@ -38,6 +38,9 @@ const ItineraryView = ({ plans }: ItineraryViewProps) => {
           <div className="space-y-1">
             {day.items.map((item, idx) => {
               const Icon = typeIcons[item.type];
+              const mapsUrl = item.mapsQuery
+                ? `https://www.google.com/maps/search/${encodeURIComponent(item.mapsQuery)}`
+                : null;
               return (
                 <div key={idx} className="flex items-start gap-3 py-2">
                   <div className="flex items-center gap-2 min-w-[60px]">
@@ -47,10 +50,21 @@ const ItineraryView = ({ plans }: ItineraryViewProps) => {
                   <div className={`p-1.5 rounded-md ${typeColors[item.type]}`}>
                     <Icon className="h-3.5 w-3.5" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 flex items-center gap-2">
                     <span className="text-sm text-foreground">{item.activity}</span>
                     {item.cost > 0 && (
-                      <span className="text-xs text-muted-foreground ml-2">~₹{item.cost}</span>
+                      <span className="text-xs text-muted-foreground">~₹{item.cost}</span>
+                    )}
+                    {mapsUrl && (
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
+                        title="Open in Google Maps"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
                     )}
                   </div>
                 </div>
