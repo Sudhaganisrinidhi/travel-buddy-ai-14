@@ -219,7 +219,7 @@ const defaultData: CityData = {
 };
 
 function getGoogleMapsUrl(query: string): string {
-  return `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}`;
 }
 
 export function getCityHotels(city: City): { name: string; mapsUrl: string; priceRange: string }[] {

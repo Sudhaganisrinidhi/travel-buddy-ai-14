@@ -39,7 +39,7 @@ const ItineraryView = ({ plans }: ItineraryViewProps) => {
             {day.items.map((item, idx) => {
               const Icon = typeIcons[item.type];
               const mapsUrl = item.mapsQuery
-                ? `https://www.google.com/maps/search/${encodeURIComponent(item.mapsQuery)}`
+                ? `https://maps.google.com/maps?q=${encodeURIComponent(item.mapsQuery)}`
                 : null;
               return (
                 <div key={idx} className="flex items-start gap-3 py-2">
