@@ -145,7 +145,7 @@ const Index = () => {
                   : 'Select a transport option to auto-adjust schedule times. Click 🔗 for Google Maps.'
                 }
               </p>
-              <ItineraryView plans={itinerary} />
+              <ItineraryView plans={itinerary} destination={to} />
             </div>
           )}
 
