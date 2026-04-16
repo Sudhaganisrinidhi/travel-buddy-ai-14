@@ -192,6 +192,44 @@ const cityData: Record<string, CityData> = {
       { name: "Hotel Ashoka Warangal", query: "Hotel Ashoka, Warangal", priceRange: "₹1000-1800/night" },
     ],
   },
+  "Guntur": {
+    places: [
+      { name: "Kondaveedu Fort", query: "Kondaveedu Fort, Guntur" },
+      { name: "Amaravathi Buddhist Stupa", query: "Amaravathi Buddhist Stupa, Guntur" },
+      { name: "Undavalli Caves", query: "Undavalli Caves, Guntur" },
+      { name: "Mangalagiri Temple", query: "Mangalagiri Panakala Narasimha Temple" },
+      { name: "Kotappakonda Temple", query: "Kotappakonda Temple, Guntur" },
+      { name: "Uppalapadu Bird Sanctuary", query: "Uppalapadu Bird Sanctuary, Guntur" },
+      { name: "Prakasam Barrage", query: "Prakasam Barrage, Vijayawada" },
+      { name: "Ethipothala Waterfalls", query: "Ethipothala Waterfalls, Guntur" },
+      { name: "Nagarjuna Sagar Dam", query: "Nagarjuna Sagar Dam" },
+      { name: "Phansalkar Museum", query: "Phansalkar Museum, Guntur" },
+    ],
+    food: [
+      { name: "Ram Ki Bandi (Dosa)", query: "Ram Ki Bandi, Guntur" },
+      { name: "Babai Hotel (Guntur Biryani)", query: "Babai Hotel, Guntur" },
+      { name: "Sri Sai Ram Parlour", query: "Sri Sai Ram Parlour, Guntur" },
+      { name: "Hotel Sindoora", query: "Hotel Sindoora, Guntur" },
+      { name: "Guntur Idly", query: "Guntur Famous Idly, Guntur" },
+      { name: "Subbayya Gari Hotel", query: "Subbayya Gari Hotel, Guntur" },
+      { name: "Karachi Bakery Guntur", query: "Karachi Bakery, Guntur" },
+      { name: "Sri Krishna Lunch Home", query: "Sri Krishna Lunch Home, Guntur" },
+      { name: "Minerva Coffee Shop", query: "Minerva Coffee Shop, Guntur" },
+      { name: "Chutneys Guntur", query: "Chutneys, Guntur" },
+    ],
+    activities: [
+      { name: "Guntur Chilli Market Visit", query: "Guntur Mirchi Yard" },
+      { name: "Amaravathi Heritage Walk", query: "Amaravathi Heritage, Guntur" },
+      { name: "Boating at Nagarjuna Sagar", query: "Nagarjuna Sagar Boating" },
+    ],
+    hotels: [
+      { name: "Hotel Namo", query: "Hotel Namo, Guntur", priceRange: "₹800-1500/night" },
+      { name: "Hotel Sindoora Grand", query: "Hotel Sindoora Grand, Guntur", priceRange: "₹1200-2000/night" },
+      { name: "Fortune Murali Park", query: "Fortune Murali Park, Guntur", priceRange: "₹3000-5000/night" },
+      { name: "Hotel Vijay Grand", query: "Hotel Vijay Grand, Guntur", priceRange: "₹1000-1800/night" },
+      { name: "OYO Rooms Guntur", query: "OYO Rooms, Guntur", priceRange: "₹600-1200/night" },
+    ],
+  },
 };
 
 const defaultData: CityData = {
