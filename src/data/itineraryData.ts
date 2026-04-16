@@ -219,7 +219,7 @@ const defaultData: CityData = {
 };
 
 function getGoogleMapsUrl(query: string): string {
-  return `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}`;
 }
 
 export function getCityHotels(city: City): { name: string; mapsUrl: string; priceRange: string }[] {
@@ -312,4 +312,37 @@ function addTime(base: string, hoursToAdd: number): string {
   const newH = Math.floor(totalMinutes / 60) % 24;
   const newM = Math.round(totalMinutes % 60);
   return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+}
+
+export function getNearbySuggestions(city: City, extraHours: number, dayNum: number): { name: string; query: string; type: string }[] {
+  const data = cityData[city.name] || defaultData;
+  const suggestions: { name: string; query: string; type: string }[] = [];
+  
+  // Pick places not likely already in that day's itinerary
+  const offset = dayNum * 3;
+  
+  if (extraHours >= 1) {
+    const placeIdx = (offset + 4) % data.places.length;
+    suggestions.push({ name: data.places[placeIdx].name, query: data.places[placeIdx].query || `${data.places[placeIdx].name}, ${city.name}`, type: 'sightseeing' });
+  }
+  if (extraHours >= 1) {
+    const foodIdx = (offset + 3) % data.food.length;
+    suggestions.push({ name: `Snack at ${data.food[foodIdx].name}`, query: data.food[foodIdx].query || `${data.food[foodIdx].name}, ${city.name}`, type: 'food' });
+  }
+  if (extraHours >= 2) {
+    const actIdx = (offset + 2) % data.activities.length;
+    suggestions.push({ name: data.activities[actIdx].name, query: data.activities[actIdx].query || `${data.activities[actIdx].name}, ${city.name}`, type: 'activity' });
+  }
+  if (extraHours >= 2) {
+    const placeIdx2 = (offset + 6) % data.places.length;
+    suggestions.push({ name: data.places[placeIdx2].name, query: data.places[placeIdx2].query || `${data.places[placeIdx2].name}, ${city.name}`, type: 'sightseeing' });
+  }
+  if (extraHours >= 3) {
+    const placeIdx3 = (offset + 8) % data.places.length;
+    suggestions.push({ name: data.places[placeIdx3].name, query: data.places[placeIdx3].query || `${data.places[placeIdx3].name}, ${city.name}`, type: 'sightseeing' });
+    const foodIdx2 = (offset + 5) % data.food.length;
+    suggestions.push({ name: `Dinner at ${data.food[foodIdx2].name}`, query: data.food[foodIdx2].query || `${data.food[foodIdx2].name}, ${city.name}`, type: 'food' });
+  }
+  
+  return suggestions;
 }

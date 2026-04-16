@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { DayPlan } from '@/data/itineraryData';
-import { Clock, MapPin, Utensils, Camera, Bed, Activity, ExternalLink } from 'lucide-react';
+import { Clock, MapPin, Utensils, Camera, Bed, Activity, ExternalLink, Plus, Timer } from 'lucide-react';
+import { City } from '@/data/indianCities';
+import { getNearbySuggestions } from '@/data/itineraryData';
 
 const typeIcons = {
   travel: MapPin,
@@ -19,9 +22,35 @@ const typeColors = {
 
 interface ItineraryViewProps {
   plans: DayPlan[];
+  destination?: City | null;
 }
 
-const ItineraryView = ({ plans }: ItineraryViewProps) => {
+const ItineraryView = ({ plans, destination }: ItineraryViewProps) => {
+  const [extraTimeDay, setExtraTimeDay] = useState<number | null>(null);
+  const [extraHours, setExtraHours] = useState<number>(2);
+  const [suggestions, setSuggestions] = useState<{ name: string; query: string; type: string }[]>([]);
+
+  const handleExtraTime = (dayNum: number) => {
+    if (extraTimeDay === dayNum) {
+      setExtraTimeDay(null);
+      setSuggestions([]);
+      return;
+    }
+    setExtraTimeDay(dayNum);
+    if (destination) {
+      const s = getNearbySuggestions(destination, extraHours, dayNum);
+      setSuggestions(s);
+    }
+  };
+
+  const handleHoursChange = (hours: number, dayNum: number) => {
+    setExtraHours(hours);
+    if (destination) {
+      const s = getNearbySuggestions(destination, hours, dayNum);
+      setSuggestions(s);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {plans.map((day) => (
@@ -39,7 +68,7 @@ const ItineraryView = ({ plans }: ItineraryViewProps) => {
             {day.items.map((item, idx) => {
               const Icon = typeIcons[item.type];
               const mapsUrl = item.mapsQuery
-                ? `https://www.google.com/maps/search/${encodeURIComponent(item.mapsQuery)}`
+                ? `https://maps.google.com/maps?q=${encodeURIComponent(item.mapsQuery)}`
                 : null;
               return (
                 <div key={idx} className="flex items-start gap-3 py-2">
@@ -70,6 +99,68 @@ const ItineraryView = ({ plans }: ItineraryViewProps) => {
                 </div>
               );
             })}
+          </div>
+
+          {/* Extra Time Section */}
+          <div className="mt-4 border-t border-border pt-3">
+            <button
+              onClick={() => handleExtraTime(day.day)}
+              className={`flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                extraTimeDay === day.day
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              }`}
+            >
+              <Plus className="h-4 w-4" />
+              Extra time left? Get suggestions
+            </button>
+
+            {extraTimeDay === day.day && (
+              <div className="mt-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <Timer className="h-4 w-4 text-primary" />
+                  <span className="text-sm text-foreground font-medium">How many extra hours?</span>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4].map(h => (
+                      <button
+                        key={h}
+                        onClick={() => handleHoursChange(h, day.day)}
+                        className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                          extraHours === h
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                        }`}
+                      >
+                        {h}h
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {suggestions.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground mb-2">
+                      With {extraHours} extra hours, you could visit:
+                    </p>
+                    {suggestions.map((s, i) => (
+                      <a
+                        key={i}
+                        href={`https://maps.google.com/maps?q=${encodeURIComponent(s.query)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-2 rounded-lg bg-card hover:bg-muted/50 transition-colors group"
+                      >
+                        <div className={`p-1 rounded ${s.type === 'food' ? 'bg-travel-sun/10 text-travel-sun' : s.type === 'activity' ? 'bg-travel-green/10 text-travel-green' : 'bg-travel-coral/10 text-travel-coral'}`}>
+                          {s.type === 'food' ? <Utensils className="h-3.5 w-3.5" /> : s.type === 'activity' ? <Activity className="h-3.5 w-3.5" /> : <Camera className="h-3.5 w-3.5" />}
+                        </div>
+                        <span className="text-sm text-foreground flex-1">{s.name}</span>
+                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       ))}

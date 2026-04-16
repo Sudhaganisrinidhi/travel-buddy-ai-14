@@ -31,7 +31,7 @@ const Index = () => {
     const itin = generateItinerary(to, days, defaultArrival);
     setItinerary(itin);
     setSearched(true);
-    setActiveTab('transport');
+    setActiveTab('budget');
   };
 
   // When user selects transport, recalculate itinerary with that arrival time
@@ -101,10 +101,10 @@ const Index = () => {
           {/* Tabs */}
           <div className="flex gap-1 mt-6 mb-6 border-b border-border overflow-x-auto">
             {([
-              { id: 'transport' as const, label: 'Transport', icon: Route },
+              { id: 'budget' as const, label: 'Budget', icon: IndianRupee },
               { id: 'itinerary' as const, label: 'Itinerary', icon: CalendarClock },
               { id: 'stay' as const, label: 'Stay & Food', icon: Bed },
-              { id: 'budget' as const, label: 'Budget', icon: IndianRupee },
+              { id: 'transport' as const, label: 'Transport', icon: Route },
             ]).map(tab => {
               const Icon = tab.icon;
               return (
@@ -145,7 +145,7 @@ const Index = () => {
                   : 'Select a transport option to auto-adjust schedule times. Click 🔗 for Google Maps.'
                 }
               </p>
-              <ItineraryView plans={itinerary} />
+              <ItineraryView plans={itinerary} destination={to} />
             </div>
           )}
 
