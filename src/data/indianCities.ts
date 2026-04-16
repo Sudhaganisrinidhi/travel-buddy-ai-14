@@ -34,6 +34,9 @@ export const indianCities: City[] = [
   { name: "Vijayawada", state: "Andhra Pradesh", lat: 16.5062, lng: 80.6480, type: "major", hasAirport: true, hasRailway: true },
   { name: "Visakhapatnam", state: "Andhra Pradesh", lat: 17.6868, lng: 83.2185, type: "major", hasAirport: true, hasRailway: true },
   { name: "Tirupati", state: "Andhra Pradesh", lat: 13.6288, lng: 79.4192, type: "city", hasAirport: true, hasRailway: true },
+  { name: "Guntur", state: "Andhra Pradesh", lat: 16.3067, lng: 80.4365, type: "city", hasAirport: false, hasRailway: true },
+  { name: "Nellore", state: "Andhra Pradesh", lat: 14.4426, lng: 79.9865, type: "city", hasAirport: false, hasRailway: true },
+  { name: "Rajahmundry", state: "Andhra Pradesh", lat: 17.0005, lng: 81.8040, type: "city", hasAirport: true, hasRailway: true },
   { name: "Amaravati", state: "Andhra Pradesh", lat: 16.5131, lng: 80.5150, type: "city", hasAirport: false, hasRailway: false },
   
   // Tamil Nadu
